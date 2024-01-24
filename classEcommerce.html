@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exercicio Final Class Ecommerce</title>
+  </head>
+  <body>
+    <script>
+      class Ecommerce {
+        constructor() {
+          this.produtos = [];
+          this.carrinhoDeCompras = [];
+        }
+        // Adiciona produto a produtos
+        addProduct(produto) {
+          this.produtos.push(produto);
+        }
+        // Defenir novo valor para price
+        setProductPrice(productId, price) {
+          const produto = this.produtos.find((p) => p.id === productId);
+
+          if (produto) {
+            produto.price = price;
+          }
+        }
+        // Devolver todos os produtos
+        getAllProducts() {
+          return this.produtos;
+        }
+        // Devolve todos os produtos pelo nome
+
+        getAllProductsNames() {
+          const nomes = this.produtos.map((produto) => produto.name);
+          return nomes.join("; ");
+        }
+
+        // Devolve produtos pelo id
+
+        getProductById(productId) {
+          return this.produtos.find((produto) => produto.id === productId);
+        }
+
+        // Devolve produto pelo nome
+
+        getProductByName(productName) {
+          return this.produtos.find((produto) => produto.name === productName);
+        }
+
+        // Devolve produtos no intervalo de valores
+
+        getProductsByPrice(initialPrice, finalPrice) {
+          return this.produtos.filter(
+            (produto) =>
+              produto.price >= initialPrice && produto.price <= finalPrice
+          );
+        }
+
+        // Adiciona produto ao carrinho
+
+        addProductToCart(produto) {
+          this.carrinhoDeCompras.push(produto);
+        }
+        // retorna produtos do carrinho
+        getCart() {
+          return this.carrinhoDeCompras;
+        }
+        // devolve o valor total dos produtos no carrinho
+        getCartTotalPrice() {
+          const total = this.carrinhoDeCompras.reduce(
+            (acc, produto) => acc + produto.price,
+            0
+          );
+          return total;
+        }
+      }
+
+      // Exemplo de uso
+      const minhaLoja = new Ecommerce();
+
+      const produto1 = { name: "Iphone", price: 1235.99, id: 1 };
+      const produto2 = { name: "Macbook", price: 1999.99, id: 2 };
+      const produto3 = { name: "Airpods", price: 140.99, id: 3 };
+
+      minhaLoja.addProduct(produto1);
+      minhaLoja.addProduct(produto2);
+      minhaLoja.addProduct(produto3);
+
+      minhaLoja.setProductPrice(2, 2199.99);
+
+      const todosOsProdutos = minhaLoja.getAllProducts();
+      const nomesDosProdutos = minhaLoja.getAllProductsNames();
+      const produtoById = minhaLoja.getProductById(2);
+      const produtoByName = minhaLoja.getProductByName("Iphone");
+      const produtosNoIntervalo = minhaLoja.getProductsByPrice(1000, 2500);
+
+      minhaLoja.addProductToCart(produto1);
+      minhaLoja.addProductToCart(produto3);
+
+      const carrinho = minhaLoja.getCart();
+      const totalDoCarrinho = minhaLoja.getCartTotalPrice();
+    </script>
+  </body>
+</html>

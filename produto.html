@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Produto</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <script>
+      // Função assíncrona para obter os dados de um produto a partir da API
+      async function getProductDetails(productId) {
+        try {
+          const apiUrl = `https://fakestoreapi.com/products/${productId}`;
+          const response = await fetch(apiUrl);
+          const productDetails = await response.json();
+          return productDetails;
+        } catch (error) {
+          console.error("Erro ao obter detalhes do produto:", error);
+          return null;
+        }
+      }
+
+      // Função assíncrona para obter os produtos relacionados de uma categoria específica
+      async function getRelatedProducts(category, excludeProductId) {
+        try {
+          const apiUrl = `https://fakestoreapi.com/products/category/${category}`;
+          const response = await fetch(apiUrl);
+          const products = await response.json();
+
+          // Excluir o produto atual da lista de produtos relacionados
+          const filteredProducts = products.filter(
+            (product) => product.id !== excludeProductId
+          );
+
+          // Retornar os 3 primeiros produtos relacionados
+          return filteredProducts.slice(0, 3);
+        } catch (error) {
+          console.error("Erro ao obter produtos relacionados:", error);
+          return [];
+        }
+      }
+
+      // Função assíncrona para renderizar os produtos relacionados no final da página
+      async function renderRelatedProducts(category, excludeProductId) {
+        const relatedProducts = await getRelatedProducts(
+          category,
+          excludeProductId
+        );
+
+        if (relatedProducts.length === 0) {
+          console.error("Nenhum produto relacionado encontrado.");
+          return;
+        }
+
+        // Criar dinamicamente a div para exibir os produtos relacionados
+        const relatedProductsContainer = document.createElement("div");
+        relatedProductsContainer.id = "relatedProducts";
+        document.body.appendChild(relatedProductsContainer);
+
+        console.log("Produtos Relacionados:", relatedProducts);
+
+        // Preencher dinamicamente a div com os produtos relacionados
+        const relatedProductsTitle = document.createElement("h2");
+        relatedProductsTitle.classList.add("relatedProductsTitle");
+        relatedProductsTitle.textContent = "Produtos Relacionados";
+        relatedProductsContainer.appendChild(relatedProductsTitle);
+        relatedProducts.forEach((product) => {
+          const productElement = document.createElement("div");
+          productElement.classList.add("relatedProduct");
+
+          // Preencher dados de cada produto relacionado
+          productElement.innerHTML = `
+              <h3>${product.title}</h3>
+              <img src="${product.image}" alt="${product.title}" style="max-width: 100px;">
+              <p>Preço: $${product.price}</p>
+            `;
+
+          // Adicionar à div de produtos relacionados
+          relatedProductsContainer.appendChild(productElement);
+        });
+      }
+
+      // Função assíncrona para renderizar os detalhes do produto ao carregar a página
+      async function renderProductDetails() {
+        // Obter o ID do produto a partir da query string do URL
+        const productId = getProductIdFromUrl();
+
+        if (!productId) {
+          console.error("ID do produto não encontrado na query string.");
+          return;
+        }
+
+        // Obter os detalhes do produto da API
+        const productDetails = await getProductDetails(productId);
+
+        if (!productDetails) {
+          console.error("Detalhes do produto não obtidos corretamente.");
+          return;
+        }
+
+        // Criar dinamicamente a div para exibir os detalhes do produto
+        const productDetailsContainer = document.createElement("div");
+        productDetailsContainer.id = "productDetails";
+        document.body.appendChild(productDetailsContainer);
+
+        console.log("Detalhes do produto:", productDetails);
+
+        // Preencher dinamicamente a div com os detalhes do produto
+        productDetailsContainer.innerHTML = `
+            <h2>${productDetails.title}</h2>
+            <img src="${productDetails.image}" alt="${productDetails.title}" style="max-width: 200px;">
+            <p>Preço: $${productDetails.price}</p>
+            <p>${productDetails.description}</p>
+          `;
+
+        // Chamar a função para renderizar os produtos relacionados no final da página
+        renderRelatedProducts(productDetails.category, productId);
+      }
+
+      // Função para obter o ID do produto a partir da query string do URL
+      function getProductIdFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get("id");
+        return productId;
+      }
+
+      // Chamar a função para renderizar os detalhes do produto ao carregar a página
+      renderProductDetails();
+
+      // Adicionar dinamicamente o footer com o ano atual
+      const footer = document.createElement("footer");
+      const currentYear = new Date().getFullYear();
+      footer.innerHTML = `Copyright ${currentYear}`;
+      document.body.appendChild(footer);
+    </script>
+  </body>
+</html>

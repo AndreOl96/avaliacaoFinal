@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ecommerce Homepage</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <script>
+      // Aguarda o carregamento completo do DOM antes de executar o código
+      document.addEventListener("DOMContentLoaded", async () => {
+        // URL da API que fornece os dados dos produtos
+        const apiUrl = "https://fakestoreapi.com/products";
+
+        // Endpoint do carrinho para adicionar produtos
+        const cartEndpoint = "https://fakestoreapi.com/carts/7";
+
+        // Função assíncrona para carregar dados da API
+        async function loadApiData() {
+          try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            return data;
+          } catch (error) {
+            console.error("Erro ao recuperar dados:", error);
+          }
+        }
+
+        // Função para adicionar um produto ao carrinho
+        async function addToCart(productId) {
+          try {
+            // Obtém a data atual no formato 'YYYY-MM-DD'
+            const currentDate = new Date().toISOString().split("T")[0];
+
+            // Cria o payload a ser enviado para o endpoint do carrinho
+            const payload = {
+              userId: 123, // Substitua pelo número de usuário desejado
+              date: currentDate,
+              products: [
+                {
+                  productId: productId,
+                  quantity: 1,
+                },
+              ],
+            };
+
+            // Envia uma solicitação PUT para o endpoint do carrinho com o payload
+            const response = await fetch(cartEndpoint, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+
+            // Verifica se a solicitação foi bem-sucedida
+            if (!response.ok) {
+              throw new Error(
+                `Falha ao atualizar o carrinho. Status: ${response.status}`
+              );
+            }
+
+            console.log(`Produto adicionado ao carrinho com sucesso!`);
+          } catch (error) {
+            console.error("Erro ao adicionar produto ao carrinho:", error);
+          }
+        }
+
+        // Função para renderizar a grelha de produtos
+        async function renderProductGrid() {
+          // Carrega os dados da API
+          const apiData = await loadApiData();
+
+          // Verifica se os dados foram carregados com sucesso
+          if (!apiData) {
+            console.log("Falha ao carregar dados da API.");
+            return;
+          }
+
+          // Cria dinamicamente a div que conterá a grelha de produtos
+          const gridContainer = document.createElement("div");
+          gridContainer.id = "productGrid";
+          document.body.appendChild(gridContainer);
+
+          // Itera sobre os dados da API para criar elementos para cada produto na grelha
+          apiData.forEach((product) => {
+            // Cria um elemento de div para representar cada produto
+            const productElement = document.createElement("div");
+            productElement.classList.add("product");
+
+            // Cria um elemento de cabeçalho (h3) para o nome do produto
+            const productName = document.createElement("h3");
+            productName.textContent = product.title;
+
+            // Cria um elemento de imagem para a representação visual do produto
+            const productImage = document.createElement("img");
+            productImage.src = product.image;
+            productImage.alt = product.title;
+
+            // Cria um botão "Add to Cart" para adicionar o produto ao carrinho
+            const addToCartButton = document.createElement("button");
+            addToCartButton.classList.add("addToCartButton");
+            addToCartButton.textContent = "Add to Cart";
+
+            // Adiciona um listener ao botão para chamar a função addToCart
+            addToCartButton.addEventListener("click", () => {
+              addToCart(product.id); // Chama a função addToCart com o ID do produto
+            });
+
+            // Adiciona os elementos à div do produto
+            productElement.appendChild(productName);
+            productElement.appendChild(productImage);
+            productElement.appendChild(addToCartButton);
+
+            // Adiciona a div do produto à div da grelha
+            gridContainer.appendChild(productElement);
+          });
+        }
+
+        // Chama a função para renderizar a grelha de produtos
+        renderProductGrid();
+      });
+    </script>
+  </body>
+</html>
